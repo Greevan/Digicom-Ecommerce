@@ -139,6 +139,12 @@ button.btn:hover {
   max-width: 100%;
 }
 
+.product-item.disabled {
+  filter: grayscale(100%);
+  opacity: 0.5;
+}
+
+
 /* Cart Total */
 .cart-total {
   margin-top: 20px;

@@ -148,42 +148,55 @@ document.getElementById('loginForm').addEventListener('submit', e => {
 
 // Load products from Firestore
 function loadProducts() {
-    const productsListDiv = document.getElementById('productsList');
-    productsListDiv.innerHTML = "Loading products...";
-    db.collection('products').get()
-      .then(snapshot => {
-        productsListDiv.innerHTML = "";
-        if (snapshot.empty) {
-          productsListDiv.innerHTML = "No products available.";
-          return;
+  const productsListDiv = document.getElementById('productsList');
+  productsListDiv.innerHTML = "Loading products...";
+  
+  db.collection('products').get()
+    .then(snapshot => {
+      productsListDiv.innerHTML = "";
+      if (snapshot.empty) {
+        productsListDiv.innerHTML = "No products available.";
+        return;
+      }
+      
+      snapshot.forEach(doc => {
+        const prod = doc.data();
+        const imageUrl = prod.imageUrl || 'assets/images/broken.jpg';
+        const productDiv = document.createElement('div');
+        productDiv.classList.add('product-item');
+        
+        // Add a disabled class if product is disabled
+        if (prod.disabled) {
+          productDiv.classList.add('disabled');
         }
-        snapshot.forEach(doc => {
-          const prod = doc.data();
-          const imageUrl = prod.imageUrl || 'assets/images/broken.jpg';
-          const prodDiv = document.createElement('div');
-          prodDiv.classList.add('product');
-          prodDiv.innerHTML = `
-            <img src="${imageUrl}" alt="${prod.name}" width="200" onerror="this.src='assets/images/broken.jpg'"/>
-            <br>
+        
+        productDiv.innerHTML = `
+          <img src="${imageUrl}" alt="${prod.name}" width="100" onerror="this.src='assets/images/broken.jpg'"/>
+          <div class="product-details">
             <strong>${prod.name}</strong> - ₹${prod.price}
-            <br><small>Earn Credit: ${prod.credit}</small>
-            <br>
-            <div class="quantity-controls">
-              <button onclick="decreaseQuantity('${doc.id}')">-</button>
-              <span id="quantity-${doc.id}">1</span>
-              <button onclick="increaseQuantity('${doc.id}')">+</button>
-            </div>
-            <br><button onclick="addToCart('${doc.id}')">Add to Cart</button>
-            <br><button onclick="addToWishlist('${doc.id}')">Add to Wishlist</button>
-          `;
-          productsListDiv.appendChild(prodDiv);
-        });
-      })
-      .catch(err => {
-        console.error("Error loading products:", err);
-        productsListDiv.innerHTML = "Error loading products.";
+            <br><small>Credit: ${prod.credit}</small>
+          </div>
+          <!-- Optionally add other details or actions here -->
+        `;
+        
+        // If quantity is less than 10, show a "Few stocks left" message
+        if (prod.quantity < 10) {
+          const stockMsg = document.createElement('p');
+          stockMsg.style.color = "red";
+          stockMsg.style.fontWeight = "bold";
+          stockMsg.innerText = "Few stocks left";
+          productDiv.appendChild(stockMsg);
+        }
+        
+        productsListDiv.appendChild(productDiv);
       });
-  }
+    })
+    .catch(err => {
+      console.error("Error loading products:", err);
+      productsListDiv.innerHTML = "Error loading products.";
+    });
+}
+
 
   // Increase quantity for a product
 function increaseQuantity(productId) {

@@ -197,6 +197,7 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
   const description = document.getElementById('productDescription').value;
   const subCategory = document.getElementById('productSubCategory').value;
   const quantity = parseInt(document.getElementById('productQuantity').value, 10);
+  const disabled = document.getElementById('productDisabled').checked; // New field
   
   db.collection('products').add({
     name: name,
@@ -205,7 +206,8 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
     imageUrl: imageUrl,
     description: description,
     subCategory: subCategory,
-    quantity: quantity
+    quantity: quantity,
+    disabled: disabled
   })
   .then(() => {
     document.getElementById('productMessage').innerText = "Product added successfully!";
@@ -216,6 +218,7 @@ document.getElementById('addProductForm').addEventListener('submit', function(e)
     document.getElementById('productMessage').innerText = `Error: ${error.message}`;
   });
 });
+
 
 
 
@@ -231,10 +234,10 @@ function editProduct(productId) {
         document.getElementById('updateProductPrice').value = product.price;
         document.getElementById('updateProductCredit').value = product.credit;
         document.getElementById('updateProductImageUrl').value = product.imageUrl || '';
-        // Populate new fields
         document.getElementById('updateProductDescription').value = product.description || '';
         document.getElementById('updateProductSubCategory').value = product.subCategory || '';
         document.getElementById('updateProductQuantity').value = product.quantity || 0;
+        document.getElementById('updateProductDisabled').checked = product.disabled || false;
         
         showSection('updateProductSection');
       } else {
@@ -246,6 +249,7 @@ function editProduct(productId) {
       alert("Error fetching product details.");
     });
 }
+
 
 
 
@@ -265,6 +269,7 @@ document.getElementById('updateProductForm').addEventListener('submit', function
   const description = document.getElementById('updateProductDescription').value;
   const subCategory = document.getElementById('updateProductSubCategory').value;
   const quantity = parseInt(document.getElementById('updateProductQuantity').value, 10);
+  const disabled = document.getElementById('updateProductDisabled').checked; // New field
   
   db.collection('products').doc(currentProductId).update({
     name: name,
@@ -273,7 +278,8 @@ document.getElementById('updateProductForm').addEventListener('submit', function
     imageUrl: imageUrl,
     description: description,
     subCategory: subCategory,
-    quantity: quantity
+    quantity: quantity,
+    disabled: disabled
   })
   .then(() => {
     alert("Product updated successfully!");

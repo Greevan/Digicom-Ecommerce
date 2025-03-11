@@ -44,17 +44,25 @@
         <!-- Add Product Section -->
         <div id="addProductSection" class="section">
           <h2>Add New Product</h2>
-          <<form id="addProductForm">
+          <form id="addProductForm">
             <input type="text" id="productName" placeholder="Product Name" required>
             <input type="number" id="productPrice" placeholder="Product Price" required>
             <input type="number" id="productCredit" placeholder="Product Credit" required>
             <input type="url" id="productImageUrl" placeholder="Image URL (e.g., https://example.com/product1.jpg)" required>
+            
             <!-- New Fields -->
             <textarea id="productDescription" placeholder="Product Description" required></textarea>
             <input type="text" id="productSubCategory" placeholder="Product Sub-Category (admin only)" required>
             <input type="number" id="productQuantity" placeholder="Quantity Available" required>
+            
+            <!-- Checkbox to disable product -->
+            <label>
+              <input type="checkbox" id="productDisabled"> Disable Product
+            </label>
+            
             <button type="submit">Add Product</button>
           </form>
+          
           
           <button onclick="showSection('adminPanel')">Back to Dashboard</button>
         </div>
@@ -74,12 +82,20 @@
             <input type="number" id="updateProductPrice" placeholder="Product Price" required>
             <input type="number" id="updateProductCredit" placeholder="Product Credit" required>
             <input type="url" id="updateProductImageUrl" placeholder="Image URL" required>
+            
             <!-- New Fields -->
             <textarea id="updateProductDescription" placeholder="Product Description" required></textarea>
             <input type="text" id="updateProductSubCategory" placeholder="Product Sub-Category (admin only)" required>
             <input type="number" id="updateProductQuantity" placeholder="Quantity Available" required>
+            
+            <!-- Checkbox to disable product -->
+            <label>
+              <input type="checkbox" id="updateProductDisabled"> Disable Product
+            </label>
+            
             <button type="submit">Update Product</button>
           </form>
+          
           
           <button onclick="showSection('readProductsSection'); loadProducts();">Back to Products</button>
         </div>
