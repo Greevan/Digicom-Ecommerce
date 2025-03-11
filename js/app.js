@@ -157,6 +157,7 @@ document.getElementById('loginForm').addEventListener('submit', e => {
 });
 
 // Load products from Firestore with quantity controls and Add to Cart
+// Load products from Firestore with hover "Add to Cart"
 function loadProducts() {
   const productsListDiv = document.getElementById('productsList');
   productsListDiv.innerHTML = "Loading products...";
@@ -175,26 +176,20 @@ function loadProducts() {
         const productDiv = document.createElement('div');
         productDiv.classList.add('product-item');
         
-        // Add disabled class if product is disabled
         if (prod.disabled) {
           productDiv.classList.add('disabled');
         }
         
         productDiv.innerHTML = `
-          <img src="${imageUrl}" alt="${prod.name}" width="100" onerror="this.src='assets/images/broken.jpg'"/>
+          <img src="${imageUrl}" alt="${prod.name}" width="100"/>
           <div class="product-details">
-            <strong>${prod.name}</strong> - ₹${prod.price}
-            <br><small>Credit: ${prod.credit}</small>
+            <strong>${prod.name}</strong>
+            <div class="author">${prod.author || 'Unknown'}</div>
+            <div class="price">$${prod.price || 0}</div>
           </div>
-          <div class="product-actions">
-            <button onclick="decreaseQuantity('${doc.id}')">-</button>
-            <span id="quantity-${doc.id}">1</span>
-            <button onclick="increaseQuantity('${doc.id}')">+</button>
-            <button class="add-to-cart" onclick="addToCart('${doc.id}')" ${prod.disabled ? 'disabled' : ''}>Add to Cart</button>
-          </div>
+          <button class="add-to-cart" onclick="showQuantityPrompt('${doc.id}')">Add to Cart</button>
         `;
         
-        // Show "Few stocks left" if quantity is low
         if (prod.quantity < 10) {
           const stockMsg = document.createElement('p');
           stockMsg.style.color = "red";
@@ -212,56 +207,64 @@ function loadProducts() {
     });
 }
 
-// Increase quantity for a product (max 10)
-function increaseQuantity(productId) {
-  const qtySpan = document.getElementById(`quantity-${productId}`);
-  let currentQty = parseInt(qtySpan.innerText);
-  if (currentQty < 10) { // Limit to 10
-    qtySpan.innerText = currentQty + 1;
+// Quantity Prompt Functions
+let currentProductId = null;
+let currentQuantity = 1;
+
+function showQuantityPrompt(productId) {
+  currentProductId = productId;
+  currentQuantity = 1;
+  document.getElementById('quantityValue').innerText = currentQuantity;
+  document.getElementById('quantityPrompt').classList.add('active');
+}
+
+function closeQuantityPrompt() {
+  document.getElementById('quantityPrompt').classList.remove('active');
+}
+
+function increaseQuantityPrompt() {
+  if (currentQuantity < 10) {
+    currentQuantity++;
+    document.getElementById('quantityValue').innerText = currentQuantity;
   } else {
     alert("Maximum quantity limit of 10 reached.");
   }
 }
 
-// Decrease quantity for a product (minimum 1)
-function decreaseQuantity(productId) {
-  const qtySpan = document.getElementById(`quantity-${productId}`);
-  let currentQty = parseInt(qtySpan.innerText);
-  if (currentQty > 1) {
-    qtySpan.innerText = currentQty - 1;
+function decreaseQuantityPrompt() {
+  if (currentQuantity > 1) {
+    currentQuantity--;
+    document.getElementById('quantityValue').innerText = currentQuantity;
   }
 }
 
-// Add to cart with image (already exists, just ensuring it uses the quantity)
-function addToCart(productId) {
+function confirmAddToCart() {
   if (!currentUser) {
     alert("Please log in to add items to cart.");
+    closeQuantityPrompt();
     return;
   }
 
-  const qtySpan = document.getElementById(`quantity-${productId}`);
-  const quantity = parseInt(qtySpan.innerText);
-
+  const quantity = currentQuantity;
   const cartRef = db.collection('cart').doc(currentUser.uid).collection('items');
-  cartRef.where('productId', '==', productId).get()
+  cartRef.where('productId', '==', currentProductId).get()
     .then(snapshot => {
       if (!snapshot.empty) {
-        // Item exists in cart, update quantity
         const doc = snapshot.docs[0];
-        const newQty = Math.min(doc.data().quantity + quantity, 10); // Ensure total doesn't exceed 10
+        const newQty = Math.min(doc.data().quantity + quantity, 10);
         doc.ref.update({ quantity: newQty })
           .then(() => {
             alert("Cart updated successfully!");
             loadCart();
+            closeQuantityPrompt();
           });
       } else {
-        // New item, add to cart
-        db.collection('products').doc(productId).get()
+        db.collection('products').doc(currentProductId).get()
           .then(doc => {
             if (doc.exists) {
               const product = doc.data();
               cartRef.add({
-                productId: productId,
+                productId: currentProductId,
                 name: product.name,
                 price: product.price,
                 credit: product.credit,
@@ -270,15 +273,18 @@ function addToCart(productId) {
               }).then(() => {
                 alert("Added to cart successfully!");
                 loadCart();
+                closeQuantityPrompt();
               });
             } else {
               alert("Product not found.");
+              closeQuantityPrompt();
             }
           });
       }
     })
     .catch(err => {
       alert("Error adding to cart: " + err.message);
+      closeQuantityPrompt();
     });
 }
   // Load Wishlist with improved styling and images
