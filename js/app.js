@@ -1,5 +1,4 @@
-
-// Firebase configuration
+// Firebase configuration and initialization (unchanged)
 const firebaseConfig = {
   apiKey: "AIzaSyAoerhj76z6AUh-2uOVSleIsiWDHGPsjcM",
   authDomain: "ecommerce-bc87c.firebaseapp.com",
@@ -28,92 +27,103 @@ function showSection(sectionId) {
 
 // Function to revert back to the Login form
 function showLogin(event) {
-    event.preventDefault();
-    const loginFormContainer = document.querySelector('#login .form-container');
-    loginFormContainer.innerHTML = `
-        <h2>Login</h2>
-        <form id="loginForm">
-            <input type="email" id="loginEmail" placeholder="Email" required>
-            <input type="password" id="loginPassword" placeholder="Password" required>
-            <select id="loginRole" required>
-                <option value="" disabled selected>Select Role</option>
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-            </select>
-            <button type="submit" class="btn">Login</button>
-        </form>
-        <div id="loginMessage" class="message"></div>
-        <div class="new-user">
-            New user? <a href="#signup" onclick="showSignUp(event)" class="signup-link">Sign Up</a>
-        </div>
-    `;
+  if (event) event.preventDefault();
+  const loginFormContainer = document.querySelector('#login .form-container');
+  loginFormContainer.innerHTML = `
+    <h2>Login</h2>
+    <form id="loginForm">
+      <input type="email" id="loginEmail" placeholder="Email" required>
+      <input type="password" id="loginPassword" placeholder="Password" required>
+      <select id="loginRole" required>
+        <option value="" disabled selected>Select Role</option>
+        <option value="user">User</option>
+        <option value="admin">Admin</option>
+      </select>
+      <button type="submit" class="btn">Login</button>
+    </form>
+    <div id="loginMessage" class="message"></div>
+    <div class="new-user">
+      New user? <a href="#signup" onclick="showSignUp(event)" class="signup-link">Sign Up</a>
+    </div>
+  `;
 
-    document.getElementById('loginForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const email = document.getElementById('loginEmail').value;
-        const password = document.getElementById('loginPassword').value;
-        const role = document.getElementById('loginRole').value;
+  // Attach event listener after form is created
+  document.getElementById('loginForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const role = document.getElementById('loginRole').value;
 
-        auth.signInWithEmailAndPassword(email, password)
-            .then(cred => {
-                currentUser = cred.user;
-                document.getElementById('loginMessage').innerText = "Login successful!";
+    auth.signInWithEmailAndPassword(email, password)
+      .then(cred => {
+        currentUser = cred.user;
+        document.getElementById('loginMessage').innerText = "Login successful!";
 
-                if (role === "admin" && email === "admin@g.com") {
-                    window.location.href = "admin.html";
-                } else if (role === "user") {
-                    document.body.setAttribute('data-theme', 'light');
-                    createMouseTail();
-                    showSection('products');
-                } else {
-                    document.getElementById('loginMessage').innerText = "Not authorized as admin.";
-                    auth.signOut();
-                }
-            })
-            .catch(err => {
-                document.getElementById('loginMessage').innerText = err.message;
-            });
-    });
+        // Admin check: hardcoded admin email
+        const isAdmin = email === "admin@g.com";
+
+        if (role === "admin") {
+          if (isAdmin) {
+            window.location.href = "admin.html"; // Redirect to admin panel
+          } else {
+            document.getElementById('loginMessage').innerText = "Not authorized as admin.";
+            auth.signOut();
+          }
+        } else {
+          showSection('products'); // Stay on index.html for users
+        }
+      })
+      .catch(err => {
+        document.getElementById('loginMessage').innerText = err.message;
+      });
+  });
 }
 
 // Dynamically show Sign Up form when "Sign Up" link is clicked
 function showSignUp(event) {
-    event.preventDefault();
-    const loginFormContainer = document.querySelector('#login .form-container');
-    loginFormContainer.innerHTML = `
-        <h2>Sign Up</h2>
-        <form id="signUpForm">
-            <input type="email" id="signUpEmail" placeholder="Email" required>
-            <input type="password" id="signUpPassword" placeholder="Password" required>
-            <button type="submit" class="btn">Sign Up</button>
-        </form>
-        <div id="signUpMessage" class="message"></div>
-        <div class="back-to-login">
-            <a href="#login" onclick="showLogin(event)" class="back-link">Back to Login</a>
-        </div>
-    `;
+  event.preventDefault();
+  const loginFormContainer = document.querySelector('#login .form-container');
+  loginFormContainer.innerHTML = `
+    <h2>Sign Up</h2>
+    <form id="signUpForm">
+      <input type="email" id="signUpEmail" placeholder="Email" required>
+      <input type="password" id="signUpPassword" placeholder="Password" required>
+      <button type="submit" class="btn">Sign Up</button>
+    </form>
+    <div id="signUpMessage" class="message"></div>
+    <div class="back-to-login">
+      <a href="#login" onclick="showLogin(event)" class="back-link">Back to Login</a>
+    </div>
+  `;
 
-    document.getElementById('signUpForm').addEventListener('submit', e => {
-        e.preventDefault();
-        const email = document.getElementById('signUpEmail').value;
-        const password = document.getElementById('signUpPassword').value;
-        auth.createUserWithEmailAndPassword(email, password)
-            .then(cred => {
-                currentUser = cred.user;
-                document.getElementById('signUpMessage').innerText = "Registration successful! Please sign in.";
-                return db.collection('users').doc(currentUser.uid).set({
-                    email: email,
-                    credit: 0
-                });
-            })
-            .then(() => {
-                showLogin(event);
-            })
-            .catch(err => {
-                document.getElementById('signUpMessage').innerText = err.message;
-            });
-    });
+  document.getElementById('signUpForm').addEventListener('submit', e => {
+    e.preventDefault();
+    const email = document.getElementById('signUpEmail').value;
+    const password = document.getElementById('signUpPassword').value;
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(cred => {
+        currentUser = cred.user;
+        document.getElementById('signUpMessage').innerText = "Registration successful! Please sign in.";
+        return db.collection('users').doc(currentUser.uid).set({
+          email: email,
+          credit: 0
+        });
+      })
+      .then(() => {
+        showLogin(event); // Switch back to login form after signup
+      })
+      .catch(err => {
+        document.getElementById('signUpMessage').innerText = err.message;
+      });
+  });
 }
+
+// Initial call to show login form when page loads
+document.addEventListener('DOMContentLoaded', () => {
+  showLogin(); // Ensure login form is loaded on page start
+});
+
+// Rest of your code (loadProducts, addToCart, etc.) remains unchanged...
 
 // Login existing user with role check
 document.getElementById('loginForm').addEventListener('submit', e => {
