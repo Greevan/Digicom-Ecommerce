@@ -250,9 +250,6 @@ function editProduct(productId) {
     });
 }
 
-
-
-
 // Update Product Form Event Listener
 document.getElementById('updateProductForm').addEventListener('submit', function(e) {
   e.preventDefault();

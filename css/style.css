@@ -144,6 +144,45 @@ button.btn:hover {
   opacity: 0.5;
 }
 
+/* Product Actions (Quantity Controls and Add to Cart) */
+.product-actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.product-actions button {
+  padding: 8px;
+  width: 30px;
+  height: 30px;
+  background: #007aff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background 0.3s;
+}
+
+.product-actions button:hover {
+  background: #005bb5;
+}
+
+.product-actions span {
+  min-width: 30px;
+  text-align: center;
+  font-size: 16px;
+  color: #1d1d1f;
+}
+
+.product-actions .add-to-cart {
+  width: auto;
+  padding: 8px 16px;
+  font-size: 14px;
+}
+
 
 /* Cart Total */
 .cart-total {

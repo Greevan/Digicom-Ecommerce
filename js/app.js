@@ -146,7 +146,7 @@ document.getElementById('loginForm').addEventListener('submit', e => {
       });
 });
 
-// Load products from Firestore
+// Load products from Firestore with quantity controls and Add to Cart
 function loadProducts() {
   const productsListDiv = document.getElementById('productsList');
   productsListDiv.innerHTML = "Loading products...";
@@ -165,7 +165,7 @@ function loadProducts() {
         const productDiv = document.createElement('div');
         productDiv.classList.add('product-item');
         
-        // Add a disabled class if product is disabled
+        // Add disabled class if product is disabled
         if (prod.disabled) {
           productDiv.classList.add('disabled');
         }
@@ -176,10 +176,15 @@ function loadProducts() {
             <strong>${prod.name}</strong> - ₹${prod.price}
             <br><small>Credit: ${prod.credit}</small>
           </div>
-          <!-- Optionally add other details or actions here -->
+          <div class="product-actions">
+            <button onclick="decreaseQuantity('${doc.id}')">-</button>
+            <span id="quantity-${doc.id}">1</span>
+            <button onclick="increaseQuantity('${doc.id}')">+</button>
+            <button class="add-to-cart" onclick="addToCart('${doc.id}')" ${prod.disabled ? 'disabled' : ''}>Add to Cart</button>
+          </div>
         `;
         
-        // If quantity is less than 10, show a "Few stocks left" message
+        // Show "Few stocks left" if quantity is low
         if (prod.quantity < 10) {
           const stockMsg = document.createElement('p');
           stockMsg.style.color = "red";
@@ -197,73 +202,75 @@ function loadProducts() {
     });
 }
 
-
-  // Increase quantity for a product
+// Increase quantity for a product (max 10)
 function increaseQuantity(productId) {
-    const qtySpan = document.getElementById(`quantity-${productId}`);
-    let currentQty = parseInt(qtySpan.innerText);
+  const qtySpan = document.getElementById(`quantity-${productId}`);
+  let currentQty = parseInt(qtySpan.innerText);
+  if (currentQty < 10) { // Limit to 10
     qtySpan.innerText = currentQty + 1;
+  } else {
+    alert("Maximum quantity limit of 10 reached.");
   }
-  
-  // Decrease quantity for a product (minimum 1)
-  function decreaseQuantity(productId) {
-    const qtySpan = document.getElementById(`quantity-${productId}`);
-    let currentQty = parseInt(qtySpan.innerText);
-    if (currentQty > 1) {
-      qtySpan.innerText = currentQty - 1;
-    }
+}
+
+// Decrease quantity for a product (minimum 1)
+function decreaseQuantity(productId) {
+  const qtySpan = document.getElementById(`quantity-${productId}`);
+  let currentQty = parseInt(qtySpan.innerText);
+  if (currentQty > 1) {
+    qtySpan.innerText = currentQty - 1;
+  }
+}
+
+// Add to cart with image (already exists, just ensuring it uses the quantity)
+function addToCart(productId) {
+  if (!currentUser) {
+    alert("Please log in to add items to cart.");
+    return;
   }
 
-// Add to cart with image
-function addToCart(productId) {
-    if (!currentUser) {
-      alert("Please log in to add items to cart.");
-      return;
-    }
-  
-    const qtySpan = document.getElementById(`quantity-${productId}`);
-    const quantity = parseInt(qtySpan.innerText);
-  
-    const cartRef = db.collection('cart').doc(currentUser.uid).collection('items');
-    cartRef.where('productId', '==', productId).get()
-      .then(snapshot => {
-        if (!snapshot.empty) {
-          // Item exists in cart, update quantity
-          const doc = snapshot.docs[0];
-          const newQty = doc.data().quantity + quantity;
-          doc.ref.update({ quantity: newQty })
-            .then(() => {
-              alert("Cart updated successfully!");
-              loadCart();
-            });
-        } else {
-          // New item, add to cart
-          db.collection('products').doc(productId).get()
-            .then(doc => {
-              if (doc.exists) {
-                const product = doc.data();
-                cartRef.add({
-                  productId: productId,
-                  name: product.name,
-                  price: product.price,
-                  credit: product.credit,
-                  imageUrl: product.imageUrl || 'assets/images/broken.jpg',
-                  quantity: quantity
-                }).then(() => {
-                  alert("Added to cart successfully!");
-                  loadCart();
-                });
-              } else {
-                alert("Product not found.");
-              }
-            });
-        }
-      })
-      .catch(err => {
-        alert("Error adding to cart: " + err.message);
-      });
-  }
-  
+  const qtySpan = document.getElementById(`quantity-${productId}`);
+  const quantity = parseInt(qtySpan.innerText);
+
+  const cartRef = db.collection('cart').doc(currentUser.uid).collection('items');
+  cartRef.where('productId', '==', productId).get()
+    .then(snapshot => {
+      if (!snapshot.empty) {
+        // Item exists in cart, update quantity
+        const doc = snapshot.docs[0];
+        const newQty = Math.min(doc.data().quantity + quantity, 10); // Ensure total doesn't exceed 10
+        doc.ref.update({ quantity: newQty })
+          .then(() => {
+            alert("Cart updated successfully!");
+            loadCart();
+          });
+      } else {
+        // New item, add to cart
+        db.collection('products').doc(productId).get()
+          .then(doc => {
+            if (doc.exists) {
+              const product = doc.data();
+              cartRef.add({
+                productId: productId,
+                name: product.name,
+                price: product.price,
+                credit: product.credit,
+                imageUrl: product.imageUrl || 'assets/images/broken.jpg',
+                quantity: quantity
+              }).then(() => {
+                alert("Added to cart successfully!");
+                loadCart();
+              });
+            } else {
+              alert("Product not found.");
+            }
+          });
+      }
+    })
+    .catch(err => {
+      alert("Error adding to cart: " + err.message);
+    });
+}
   // Load Wishlist with improved styling and images
   function loadWishlist() {
     if (!currentUser) {
