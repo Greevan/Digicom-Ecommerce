@@ -165,7 +165,7 @@ button.btn:hover {
   transform: translate(-50%, -50%) scale(0);
   width: 80%;
   padding: 10px;
-  background: #636363;
+  background: #000;
   color: #fff;
   border: none;
   border-radius: 5px;
@@ -270,11 +270,19 @@ button.btn:hover {
   font-weight: 600;
 }
 
-/* Disabled State */
+/* Disabled State (for out-of-stock items) */
 .product-item.disabled {
   filter: grayscale(100%);
   opacity: 0.5;
-  pointer-events: none;
+  pointer-events: none; /* Prevent interaction */
+}
+
+/* Stock Message */
+.product-item .stock-message {
+  font-size: 0.9em;
+  color: red;
+  font-weight: bold;
+  margin-top: 5px;
 }
 
 /* Notification Area */
@@ -302,7 +310,6 @@ button.btn:hover {
 .quantity-prompt {
   display: none;
 }
-
 /* 
 /* Quantity Prompt (to be styled dynamically in JS) 
 .quantity-prompt {

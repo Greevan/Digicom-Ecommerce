@@ -22,7 +22,7 @@ function showSection(sectionId) {
   if (sectionId === 'products') loadProducts();
   if (sectionId === 'cart') loadCart();
   if (sectionId === 'history') loadHistory();
-  if (sectionId === 'wishlist') loadWishlist();
+  // if (sectionId === 'wishlist') loadWishlist();
 }
 
 // Function to revert back to the Login form
@@ -389,53 +389,6 @@ function showNotification(message, isError) {
   }, 3000); // Hide after 3 seconds
 }
 
- // Load Wishlist with improved styling and images
-function loadWishlist() {
-    if (!currentUser) {
-      alert("Please login first!");
-      return;
-    }
-    
-    const wishlistListDiv = document.getElementById('wishlistList');
-    wishlistListDiv.innerHTML = "Loading wishlist..."; // Add loading state
-    
-    db.collection('users').doc(currentUser.uid).collection('wishlist').get()
-      .then(snapshot => {
-        wishlistListDiv.innerHTML = ""; // Clear previous content
-        
-        if (snapshot.empty) {
-          wishlistListDiv.innerHTML = "Your wishlist is empty.";
-          return;
-        }
-        
-        snapshot.forEach(doc => {
-          const item = doc.data();
-          const imageUrl = item.imageUrl || 'assets/images/broken.jpg';
-          
-          const itemDiv = document.createElement('div');
-          itemDiv.classList.add('wishlist-item');
-          itemDiv.innerHTML = `
-            <div class="wishlist-item-content">
-              <img src="${imageUrl}" alt="${item.name}" width="100" onerror="this.src='assets/images/broken.jpg'"/>
-              <div class="wishlist-item-details">
-                <div class="wishlist-item-name">${item.name}</div>
-                <div class="wishlist-item-price">₹${item.price}</div>
-                <div class="wishlist-item-credit">Credit: ${item.credit || 0}</div>
-                <div class="wishlist-actions">
-                  <button onclick="addToCartFromWishlist('${doc.id}')">Add to Cart</button>
-                  <button onclick="removeFromWishlist('${doc.id}')">Remove</button>
-                </div>
-              </div>
-            </div>
-          `;
-          wishlistListDiv.appendChild(itemDiv);
-        });
-      })
-      .catch(err => {
-        console.error("Error loading wishlist:", err);
-        wishlistListDiv.innerHTML = "Error loading wishlist.";
-      });
-}
 
 // Increase/decrease cart quantity functions
 function increaseCartQuantity(itemId) {

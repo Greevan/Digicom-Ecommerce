@@ -23,7 +23,7 @@ function showSection(sectionId) {
   if (sectionId === 'products') loadProducts();
   if (sectionId === 'cart') loadCart();
   if (sectionId === 'history') loadHistory();
-  if (sectionId === 'wishlist') loadWishlist();
+  // if (sectionId === 'wishlist') loadWishlist();
 }
 // Admin Login Form Event Listener
 document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
