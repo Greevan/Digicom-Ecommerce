@@ -366,3 +366,103 @@ auth.onAuthStateChanged(user => {
     showSection('loginSection');
   }
 });
+
+// Report Generation Functions
+function showSection(sectionId) {
+  document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
+  document.getElementById(sectionId).classList.add('active');
+  if (sectionId === 'readProductsSection') loadProducts();
+  if (sectionId === 'reportSection') generateSalesReport(); // Auto-generate sales report on load
+}
+
+function generateSalesReport() {
+  const reportOutput = document.getElementById('reportOutput');
+  reportOutput.innerHTML = '<p>Loading sales report...</p>';
+
+  db.collection('orders').get()
+    .then(snapshot => {
+      let totalSales = 0;
+      let totalOrders = snapshot.size;
+      let totalCreditsEarned = 0;
+
+      snapshot.forEach(doc => {
+        const order = doc.data();
+        totalSales += order.finalAmount || 0;
+        totalCreditsEarned += order.totalCredit || 0;
+      });
+
+      reportOutput.innerHTML = `
+        <h3>Sales Report</h3>
+        <p>Total Orders: ${totalOrders}</p>
+        <p>Total Sales (₹): ${totalSales.toFixed(2)}</p>
+        <p>Total Credits Earned: ${totalCreditsEarned.toFixed(2)}</p>
+        <p>Average Order Value (₹): ${(totalOrders > 0 ? (totalSales / totalOrders).toFixed(2) : 0)}</p>
+      `;
+    })
+    .catch(err => {
+      console.error("Error generating sales report:", err);
+      reportOutput.innerHTML = '<p>Error loading sales report.</p>';
+    });
+}
+
+function generatePopularProductsReport() {
+  const reportOutput = document.getElementById('reportOutput');
+  reportOutput.innerHTML = '<p>Loading popular products report...</p>';
+
+  const productSales = {};
+  db.collection('orders').get()
+    .then(snapshot => {
+      snapshot.forEach(doc => {
+        const order = doc.data();
+        order.items.forEach(item => {
+          productSales[item.name] = (productSales[item.name] || 0) + item.quantity;
+        });
+      });
+
+      // Sort by quantity sold
+      const sortedProducts = Object.entries(productSales)
+        .sort((a, b) => b[1] - a[1])
+        .slice(0, 5); // Top 5 products
+
+      reportOutput.innerHTML = `
+        <h3>Popular Products Report</h3>
+        <ul>
+          ${sortedProducts.map(([name, quantity]) => `<li>${name}: ${quantity} units sold</li>`).join('')}
+        </ul>
+      `;
+    })
+    .catch(err => {
+      console.error("Error generating popular products report:", err);
+      reportOutput.innerHTML = '<p>Error loading popular products report.</p>';
+    });
+}
+
+function generateUserCreditReport() {
+  const reportOutput = document.getElementById('reportOutput');
+  reportOutput.innerHTML = '<p>Loading user credit report...</p>';
+
+  db.collection('users').get()
+    .then(snapshot => {
+      let totalCreditsUsed = 0;
+      let totalUsersWithCredits = 0;
+
+      snapshot.forEach(doc => {
+        const user = doc.data();
+        if (user.credit && user.credit > 0) {
+          totalUsersWithCredits++;
+          totalCreditsUsed += user.credit;
+        }
+      });
+
+      reportOutput.innerHTML = `
+        <h3>User Credit Usage Report</h3>
+        <p>Total Users with Credits: ${totalUsersWithCredits}</p>
+        <p>Total Credits Used (₹): ${totalCreditsUsed.toFixed(2)}</p>
+        <p>Average Credits per User (₹): ${(totalUsersWithCredits > 0 ? (totalCreditsUsed / totalUsersWithCredits).toFixed(2) : 0)}</p>
+      `;
+    })
+    .catch(err => {
+      console.error("Error generating user credit report:", err);
+      reportOutput.innerHTML = '<p>Error loading user credit report.</p>';
+    });
+}

@@ -284,6 +284,33 @@ footer {
   }
 }
 
+#reportSection {
+  padding: 20px;
+}
+
+#reportDashboard {
+  margin-bottom: 20px;
+}
+
+#reportOutput {
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background-color: #f9f9f9;
+}
+
+#reportOutput h3 {
+  margin-top: 0;
+}
+
+#reportOutput ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+
+
 @media (max-width: 480px) {
   header h1 {
       font-size: 1.8rem;

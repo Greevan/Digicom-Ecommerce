@@ -108,6 +108,17 @@
           <button id="confirmDeleteBtn">Delete</button>
           <button onclick="showSection('readProductsSection'); loadProducts();">Cancel</button>
         </div>
+              <!-- Report Section -->
+      <div id="reportSection" class="section">
+        <h2>Reports & Statistics</h2>
+        <div id="reportDashboard">
+          <button onclick="generateSalesReport()">Generate Sales Report</button>
+          <button onclick="generatePopularProductsReport()">Popular Products Report</button>
+          <button onclick="generateUserCreditReport()">User Credit Usage Report</button>
+          <div id="reportOutput"></div>
+        </div>
+        <button onclick="showSection('adminPanel')">Back to Dashboard</button>
+      </div>
       
         
     </main>
