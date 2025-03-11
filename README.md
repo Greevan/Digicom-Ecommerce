@@ -4,6 +4,12 @@
 
 Welcome to the E-Commerce Application, a web-based platform built using HTML, CSS, JavaScript, and Firebase for managing products, carts, orders, and user interactions. This project provides a seamless shopping experience for users and a robust admin interface for store management.
 
+
+GIT REPO LINK : https://github.com/Greevan/Digicom-Ecommerce.git
+
+HOSTED LINK : [Digicom - shopping](https://greevan.github.io/Digicom-Ecommerce/)
+ADMIN LOGIN CREDENTIALS : USERNAME : admin@g.com PASSWORD : admin123
+
 ## Table of Contents
 
 * [Overview](#overview)
