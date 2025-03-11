@@ -6,7 +6,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-    <!-- <script src="js/app.js"></script> -->
+    <!-- Add jsPDF and html2pdf libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
@@ -39,8 +41,8 @@
                     <input type="email" id="loginEmail" placeholder="Email" required>
                     <input type="password" id="loginPassword" placeholder="Password" required>
                     <select id="loginRole" required>
-                        <!-- <option value="" disabled selected>Switch Role</option> -->
-                        <option value="user" selected>User</option>
+                        <option value="" disabled selected>Select Role</option>
+                        <option value="user">User</option>
                         <option value="admin">Admin</option>
                     </select>
                     <button type="submit" class="btn">Login</button>
@@ -57,7 +59,6 @@
             <div id="productsList" class="products-grid"></div>
         </section>
 
-        <!-- Inside the cart section -->
         <section id="cart" class="section">
             <h2>Your Cart</h2>
             <div id="cartList" class="cart-grid"></div>
@@ -74,34 +75,25 @@
                 <div id="billDetails"></div>
                 <p>Credits Earned: <span id="creditsEarned">0</span></p>
                 <button onclick="printBill()" class="btn">Print Bill</button>
+                <!-- <button onclick="downloadBill()" class="btn">Download PDF</button> -->
             </div>
         </section>
 
-                <!-- <section id="wishlist" class="section">
-                    <h2>Your Wishlist</h2>
-                    <div id="wishlistList" class="wishlist-grid"></div>
-                </section> -->
+        <!-- <section id="wishlist" class="section">
+            <h2>Your Wishlist</h2>
+            <div id="wishlistList" class="wishlist-grid"></div>
+        </section> -->
 
-                <section id="history" class="section">
-                    <h2>Order History</h2>
-                    <div id="historyList" class="history-grid"></div>
-                </section>
+        <section id="history" class="section">
+            <h2>Order History</h2>
+            <div id="historyList" class="history-grid"></div>
+        </section>
     </main>
 
     <footer>
         <p>© Digicom, group of தி G, 2025. All rights reserved.</p>
     </footer>
-    <div id="quantityPrompt" class="quantity-prompt">
-        <h3>Select Quantity</h3>
-        <button onclick="decreaseQuantityPrompt()">-</button>
-        <span id="quantityValue">1</span>
-        <button onclick="increaseQuantityPrompt()">+</button>
-        <br>
-        <button onclick="confirmAddToCart()">Add to Cart</button>
-        <button onclick="closeQuantityPrompt()">Cancel</button>
-      </div>
-      <div id="notification"></div>
+    <div id="notification"></div>
     <script src="js/app.js"></script>
-
 </body>
 </html>
